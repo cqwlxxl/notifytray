@@ -41,7 +41,7 @@ void Widget::slotNewConnection()
 //        socket->setProxy(QNetworkProxy::NoProxy);
         mConnectionSet.insert(socket);
         connect(socket, &QTcpSocket::disconnected, this, &Widget::slotDiscardSocket, Qt::UniqueConnection);
-        logit(QString(tr("客户端[socket:%1]已连接")).arg(socket->socketDescriptor()));
+        logit(QString(tr("客户端[ip:%1]已连接")).arg(socket->peerAddress().toString()));
     }
 }
 
@@ -210,7 +210,7 @@ void Widget::checkFlash(int appId, ulong iconId)
     }
     else
     {
-        broadcastMessage(QString("%1,0,1").arg(appId));
+        broadcastMessage(QString("%1,0,0").arg(appId));
     }
 }
 

@@ -8,3 +8,7 @@ LibTrayHook/x64/Release/*.pdb
 NotifyTrayServer/*.user
 build-NotifyTrayServer-Desktop_Qt_5_12_12_MinGW_64_bit-Debug/
 build-NotifyTrayServer-Desktop_Qt_5_12_12_MinGW_64_bit-Release/
+
+NotifyTrayClient/*.user
+build-NotifyTrayClient-Desktop_Qt_5_12_12_MinGW_64_bit-Debug/
+build-NotifyTrayClient-Desktop_Qt_5_12_12_MinGW_64_bit-Release/

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Widget</class>
+ <widget class="QWidget" name="Widget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>NotifyTrayClient</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="hLayout_Icon">
+     <item>
+      <widget class="QLabel" name="label_IconPlaceholder">
+       <property name="minimumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="hSpacer_Icon">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_IconWeChat">
+       <property name="minimumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_IconQQ">
+       <property name="minimumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_IconCloudHub">
+       <property name="minimumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_IconDingTalk">
+       <property name="minimumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTextBrowser" name="textBrowser"/>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="hLayout_ServerIp">
+     <item>
+      <widget class="QLabel" name="label_ServerIp">
+       <property name="text">
+        <string>IP</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineEdit_ServerIp">
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string notr="true">127.0.0.1</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_ServerPort">
+       <property name="text">
+        <string>端口</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineEdit_ServerPort">
+       <property name="maximumSize">
+        <size>
+         <width>80</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string notr="true">8080</string>
+       </property>
+       <property name="maxLength">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="hSpacer_LinkServer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_LinkServer">
+       <property name="text">
+        <string>连接服务器</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

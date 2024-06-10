@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Widget</string>
+   <string>NotifyTrayServer</string>
   </property>
   <widget class="QTextBrowser" name="textBrowser">
    <property name="geometry">
