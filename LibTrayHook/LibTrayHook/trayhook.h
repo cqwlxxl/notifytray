@@ -44,7 +44,8 @@ typedef struct _TRAY_ICON_DATAW {
 #if (NTDDI_VERSION >= NTDDI_WINXP)
     GUID guidItem;
 #endif
-#if (NTDDI_VERSION >= NTDDI_VISTA)
+#if 1   //xxl_info: 这里Qt打开后识别到的，但是真正使用中又会少这8个字节，暂时没搞明白，先直接定义为true，不然结构体字节数对不上无法解析消息
+//#if (NTDDI_VERSION >= NTDDI_VISTA)
     HICON hBalloonIcon;
 #endif
 } TRAY_ICON_DATAW, * PTRAY_ICON_DATAW;

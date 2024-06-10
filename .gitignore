@@ -1,6 +1,8 @@
 LibTrayHook/.vs/
 LibTrayHook/LibTrayHook/x64/
-LibTrayHook/x64/
+LibTrayHook/x64/Debug/*.exp
+LibTrayHook/x64/Debug/*.pdb
+LibTrayHook/x64/Release/*.exp
+LibTrayHook/x64/Release/*.pdb
 
 NotifyTrayServer/*.user
-
