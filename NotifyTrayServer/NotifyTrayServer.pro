@@ -13,6 +13,7 @@ SOURCES += \
     Widget.cpp
 
 HEADERS += \
+    ../LibTrayHook/LibTrayHook/trayhook.h \
     Widget.h
 
 FORMS += \
