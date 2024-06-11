@@ -28,7 +28,7 @@ private:
     Ui::TopBar *ui;
 
 private slots:
-    void slotWorkAreaResized(int screen);       //显示器大小改变
+    void slotWorkAreaResized(const QRect &geometry);        //显示器大小改变
 
 public:
     void Hi();          //显示窗口

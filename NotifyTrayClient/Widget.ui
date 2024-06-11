@@ -139,16 +139,34 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_ServerIp">
-       <property name="maximumSize">
+      <widget class="QComboBox" name="comboBox_ServerIp">
+       <property name="minimumSize">
         <size>
          <width>140</width>
-         <height>16777215</height>
+         <height>0</height>
         </size>
        </property>
-       <property name="text">
-        <string notr="true">127.0.0.1</string>
+       <property name="editable">
+        <bool>true</bool>
        </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <item>
+        <property name="text">
+         <string/>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string/>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string/>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
@@ -175,6 +193,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButton_LinkServer">
+       <property name="text">
+        <string>连接服务器</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="hSpacer_LinkServer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -188,9 +213,19 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_LinkServer">
+      <widget class="QPushButton" name="pushButton_ClearLog">
        <property name="text">
-        <string>连接服务器</string>
+        <string>清理日志</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBox_Log">
+       <property name="text">
+        <string>日志</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

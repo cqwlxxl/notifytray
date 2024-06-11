@@ -7,6 +7,10 @@
 #include <QNetworkProxy>
 #include <QRegExp>
 #include <QRegExpValidator>
+#include <QSettings>
+#include <QTextCodec>
+
+#define CONFIG_FILE_PATH    "src/config/config.ini"     //配置文件路径
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -47,14 +51,29 @@ void Widget::on_pushButton_LinkServer_clicked()
     }
     else
     {   //未连接
-        QString ip = ui->lineEdit_ServerIp->text().trimmed();
+        QString ip = ui->comboBox_ServerIp->currentText().trimmed();
         QRegExp regExp(R"(\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b)");
         if(!regExp.exactMatch(ip))
         {
             QMessageBox::information(this, tr("IP不合法"), tr("请输入正确的IP"));
             return;
         }
-        ui->lineEdit_ServerIp->setText(ip);
+        //判断是否是新IP
+        if(ip != ui->comboBox_ServerIp->itemText(0))
+        {
+            mIps[2] = mIps[1];
+            mIps[1] = mIps[0];
+            mIps[0] = ip;
+            ui->comboBox_ServerIp->setItemText(2, mIps[2]);
+            ui->comboBox_ServerIp->setItemText(1, mIps[1]);
+            ui->comboBox_ServerIp->setItemText(0, mIps[0]);
+            QSettings ini(CONFIG_FILE_PATH, QSettings::IniFormat);
+            ini.setIniCodec(QTextCodec::codecForName("utf-8"));     //设置文本编码
+            ini.setValue("history_ip/ip0", mIps[0]);
+            ini.setValue("history_ip/ip1", mIps[1]);
+            ini.setValue("history_ip/ip2", mIps[2]);
+        }
+        ui->comboBox_ServerIp->setCurrentText(ip);
         int port = ui->lineEdit_ServerPort->text().trimmed().toInt();
         if(port < 0 || port > 65535)
         {
@@ -88,6 +107,12 @@ void Widget::on_pushButton_LinkServer_clicked()
     }
 }
 
+///清理日志
+void Widget::on_pushButton_ClearLog_clicked()
+{
+    ui->textBrowser->clear();
+}
+
 ///读取socket
 void Widget::slotReadSocket()
 {
@@ -115,7 +140,7 @@ void Widget::slotReadSocket()
         QString msg = QString::fromStdString(buffer.toStdString());
         QStringList values = msg.split(",");
         syncIcon(values[0].toInt(), values[1]=="1", values[2]=="1");
-        logit(QString("[%1/%3] %2").arg(mSocket->peerAddress().toString()).arg(msg).arg(mSocket->socketDescriptor()));
+        logit(QString("[%1/%3] %2").arg(mSocket->peerAddress().toString(), msg).arg(mSocket->socketDescriptor()));
     }
 }
 
@@ -131,6 +156,15 @@ void Widget::slotDiscardSocket()
 ///初始化
 void Widget::haku()
 {
+    QSettings ini(CONFIG_FILE_PATH, QSettings::IniFormat);
+    ini.setIniCodec(QTextCodec::codecForName("utf-8"));     //设置文本编码
+    mIps[0] = ini.value("history_ip/ip0", "").toString();
+    mIps[1] = ini.value("history_ip/ip1", "").toString();
+    mIps[2] = ini.value("history_ip/ip2", "").toString();
+    ui->comboBox_ServerIp->setItemText(0, mIps[0]);
+    ui->comboBox_ServerIp->setItemText(1, mIps[1]);
+    ui->comboBox_ServerIp->setItemText(2, mIps[2]);
+
     ui->label_IconWeChat->setVisible(false);
     ui->label_IconQQ->setVisible(false);
     ui->label_IconCloudHub->setVisible(false);
@@ -148,6 +182,7 @@ void Widget::haku()
 ///打印log
 void Widget::logit(QString str)
 {
+    if(!ui->checkBox_Log->isChecked()) { return; }
     ui->textBrowser->append(QString("[%1] %2").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz"), str));
 }
 
@@ -168,7 +203,7 @@ void Widget::syncIcon(int appId, bool hasMsg, bool hasIcon)
         {
             ui->label_IconWeChat->clear();
         }
-        ui->label_IconWeChat->setVisible(hasIcon);
+        ui->label_IconWeChat->setVisible(hasMsg);
         break;
     case IdQQ:
         if(hasIcon)
@@ -179,7 +214,7 @@ void Widget::syncIcon(int appId, bool hasMsg, bool hasIcon)
         {
             ui->label_IconQQ->clear();
         }
-        ui->label_IconQQ->setVisible(hasIcon);
+        ui->label_IconQQ->setVisible(hasMsg);
         break;
     case IdCloudHub:
         if(hasIcon)
@@ -190,7 +225,7 @@ void Widget::syncIcon(int appId, bool hasMsg, bool hasIcon)
         {
             ui->label_IconCloudHub->clear();
         }
-        ui->label_IconCloudHub->setVisible(hasIcon);
+        ui->label_IconCloudHub->setVisible(hasMsg);
         break;
     case IdDingTalk:
         if(hasIcon)
@@ -201,7 +236,7 @@ void Widget::syncIcon(int appId, bool hasMsg, bool hasIcon)
         {
             ui->label_IconDingTalk->clear();
         }
-        ui->label_IconDingTalk->setVisible(hasIcon);
+        ui->label_IconDingTalk->setVisible(hasMsg);
         break;
     default:
         break;
@@ -213,7 +248,7 @@ void Widget::setLinked(bool link)
 {
     mLinked = link;
     //设置控件
-    ui->lineEdit_ServerIp->setEnabled(!link);
+    ui->comboBox_ServerIp->setEnabled(!link);
     ui->lineEdit_ServerPort->setEnabled(!link);
     ui->pushButton_LinkServer->setText(link?tr("断开"):tr("连接服务器"));
     if(!link)

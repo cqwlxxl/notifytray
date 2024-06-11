@@ -23,6 +23,7 @@ private:
 
 private slots:
     void on_pushButton_LinkServer_clicked();        //连接服务器
+    void on_pushButton_ClearLog_clicked();          //清理日志
 
 private slots:
     void slotReadSocket();          //读取socket
@@ -38,5 +39,6 @@ private:
     QTcpSocket  *mSocket {nullptr};
     TopBar      *mTopBar {new TopBar(nullptr)};     //桌面置顶条
     bool        mLinked {false};                    //是否连接上服务器
+    QString     mIps[3];                            //历史IP
 };
 #endif // WIDGET_H
