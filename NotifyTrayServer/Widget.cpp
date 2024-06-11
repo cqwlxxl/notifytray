@@ -6,6 +6,7 @@
 #include <QDataStream>
 #include <QMessageBox>
 #include <QNetworkProxy>
+#include <QProcess>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -62,6 +63,8 @@ void Widget::slotDiscardSocket()
 ///初始化
 void Widget::haku()
 {
+    scanTray();
+
     mDwMessage.insert(NIM_ADD,          "NIM_ADD");
     mDwMessage.insert(NIM_MODIFY,       "NIM_MODIFY");
     mDwMessage.insert(NIM_DELETE,       "NIM_DELETE");
@@ -165,20 +168,20 @@ void Widget::broadcastMessage(QString str)
 }
 
 ///处理图标信息
-void Widget::taryInfo(QString type, ulong iconId, QString title)
+void Widget::taryInfo(QString type, ulong iconId, QString title, quint64 hWnd)
 {
     logit(QString("type=%1, iconId=%3, title=%2").arg(type, title).arg(iconId));
     if(type == mDwMessage[NIM_MODIFY])
     {   //图标更改
-        if(title.contains(mMSD[IdWeChat].appName))
+        if(hWnd == mMSD[IdWeChat].hWnd)
         {
             checkFlash(IdWeChat, iconId);
         }
-        else if(title.contains(mMSD[IdCloudHub].appName))
+        else if(hWnd == mMSD[IdCloudHub].hWnd)
         {
             checkFlash(IdCloudHub, iconId);
         }
-        else if(title.contains(mMSD[IdDingTalk].appName))
+        else if(hWnd == mMSD[IdDingTalk].hWnd)
         {
             checkFlash(IdDingTalk, iconId);
         }
@@ -214,6 +217,54 @@ void Widget::checkFlash(int appId, ulong iconId)
     }
 }
 
+///扫描图标句柄
+void Widget::scanTray()
+{
+    QProcess process;
+
+    QString program = "ScanTray.exe";
+    process.start(program);
+    //等待外部程序执行完成或者设置最大等待时间
+    if(!process.waitForFinished(5000))
+    {
+        logit(tr("扫描图标句柄超时!"));
+        return;
+    }
+    QByteArray result = process.readAll();
+    QString output = QString::fromLocal8Bit(result);
+
+    QStringList tarys = output.split(";;HAKU_LINE;;", QString::SkipEmptyParts);
+    foreach(QString tary, tarys)
+    {
+        QStringList strs;
+        bool ok;
+        if(tary.contains("微信") && tary.contains("WeChat.exe"))
+        {
+            strs = tary.split(";;HAKU_ITEM;;");
+            mMSD[IdWeChat].hWnd = QString("0x%1").arg(strs.at(0)).toUInt(&ok, 16);
+            logit(tr("已获取到 <%1> 句柄[0x%2]").arg(tr("微信"), QString::number(mMSD[IdWeChat].hWnd, 16)));
+        }
+        else if(tary.contains("QQ.exe"))
+        {
+            strs = tary.split(";;HAKU_ITEM;;");
+            mMSD[IdQQ].hWnd = QString("0x%1").arg(strs.at(0)).toUInt(&ok, 16);
+            logit(tr("已获取到 <%1> 句柄[0x%2]").arg(tr("QQ"), QString::number(mMSD[IdQQ].hWnd, 16)));
+        }
+        else if(tary.contains("云之家") && tary.contains("CloudHub.exe"))
+        {
+            strs = tary.split(";;HAKU_ITEM;;");
+            mMSD[IdCloudHub].hWnd = QString("0x%1").arg(strs.at(0)).toUInt(&ok, 16);
+            logit(tr("已获取到 <%1> 句柄[0x%2]").arg(tr("云之家"), QString::number(mMSD[IdCloudHub].hWnd, 16)));
+        }
+        else if(tary.contains("钉钉") && tary.contains("DingTalk.exe"))
+        {
+            strs = tary.split(";;HAKU_ITEM;;");
+            mMSD[IdDingTalk].hWnd = QString("0x%1").arg(strs.at(0)).toUInt(&ok, 16);
+            logit(tr("已获取到 <%1> 句柄[0x%2]").arg(tr("钉钉"), QString::number(mMSD[IdDingTalk].hWnd, 16)));
+        }
+    }
+}
+
 bool Widget::nativeEvent(const QByteArray &eventType, void *message, long *result)
 {
     Q_UNUSED(eventType)
@@ -230,12 +281,12 @@ bool Widget::nativeEvent(const QByteArray &eventType, void *message, long *resul
         {
             break;
         }
-        logit(QString("lpReceiveCDS->cbData=%1, sizeof(TRAY_ICON_DATAW)=%2").arg(lpReceiveCDS->cbData).arg(sizeof(TRAY_ICON_DATAW)));
+//        logit(QString("lpReceiveCDS->cbData=%1, sizeof(TRAY_ICON_DATAW)=%2").arg(lpReceiveCDS->cbData).arg(sizeof(TRAY_ICON_DATAW)));
         if(lpReceiveCDS->dwData == WM_NotifyCallWndProc && lpReceiveCDS->cbData == sizeof(TRAY_ICON_DATAW))
         {
             lpNotifyData = (TRAY_ICON_DATAW*)lpReceiveCDS->lpData;
             logit(QString("[%1] => [HWND: 0x%2]").arg(mDwMessage[lpNotifyData->dwMessage], QString::number(pMsg->wParam, 16)));
-            taryInfo(mDwMessage[lpNotifyData->dwMessage], lpNotifyData->uIconID, QString::fromWCharArray(lpNotifyData->szTip));
+            taryInfo(mDwMessage[lpNotifyData->dwMessage], lpNotifyData->uIconID, QString::fromWCharArray(lpNotifyData->szTip), pMsg->wParam);
         }
     }
         break;

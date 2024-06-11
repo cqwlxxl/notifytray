@@ -27,6 +27,7 @@ struct ModifySocketData
     QString     appName;
     QDateTime   lastModifyTime {QDateTime::currentDateTime()};
     ulong       lastIconId {0};
+    quint64     hWnd {0x0};             //句柄
     int         modifyCount {0};
 };
 
@@ -52,8 +53,9 @@ private:
     void uninstallHook_NotifyWndProc();                 //卸载 Win32 钩子
     void sendMessage(QTcpSocket* socket, QString str);  //发送socket消息
     void broadcastMessage(QString str);                 //广播socket消息
-    void taryInfo(QString type, ulong iconId, QString title);       //处理图标信息
+    void taryInfo(QString type, ulong iconId, QString title, quint64 hWnd);         //处理图标信息
     void checkFlash(int appId, ulong iconId);                       //检查是否闪动
+    void scanTray();                                    //扫描图标句柄
 
 protected:
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
