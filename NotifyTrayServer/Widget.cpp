@@ -32,6 +32,12 @@ Widget::~Widget()
     delete ui;
 }
 
+///清理日志
+void Widget::on_pushButton_ClearLog_clicked()
+{
+    ui->textBrowser->clear();
+}
+
 ///新的连接
 void Widget::slotNewConnection()
 {
@@ -93,6 +99,7 @@ void Widget::haku()
 ///打印log
 void Widget::logit(QString str)
 {
+    if(!ui->checkBox_Log->isChecked()) { return; }
     ui->textBrowser->append(QString("[%1] %2").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz"), str));
 }
 
@@ -177,6 +184,10 @@ void Widget::taryInfo(QString type, ulong iconId, QString title, quint64 hWnd)
         {
             checkFlash(IdWeChat, iconId);
         }
+        else if(hWnd == mMSD[IdQQ].hWnd)
+        {
+            checkFlash(IdQQ, iconId);
+        }
         else if(hWnd == mMSD[IdCloudHub].hWnd)
         {
             checkFlash(IdCloudHub, iconId);
@@ -191,7 +202,7 @@ void Widget::taryInfo(QString type, ulong iconId, QString title, quint64 hWnd)
 ///检查软件
 void Widget::checkFlash(int appId, ulong iconId)
 {
-    if(appId < IdWeChat || appId >= IdMax || appId == IdQQ)
+    if(appId < IdWeChat || appId >= IdMax)
     {   //检查appId有效性，QQ的检测方法暂未实现
         return;
     }
@@ -207,9 +218,17 @@ void Widget::checkFlash(int appId, ulong iconId)
     mMSD[appId].lastModifyTime = datetime;
     mMSD[appId].lastIconId = iconId;
     //
-    if(mMSD[appId].modifyCount >= 3)
-    {   //3次有效则认为在闪动
-        broadcastMessage(QString("%1,1,%2").arg(appId).arg(iconId != 0));
+    if(mMSD[appId].modifyCount >= 2)
+    {   //2次有效则认为在闪动
+        if(appId == IdQQ)
+        {   //QQ单独处理
+            broadcastMessage(QString("%1,1,%2").arg(appId).arg(mMSD[IdQQ].lastHasIcon));
+            mMSD[IdQQ].lastHasIcon = !mMSD[IdQQ].lastHasIcon;
+        }
+        else
+        {   //微信、云之家、钉钉
+            broadcastMessage(QString("%1,1,%2").arg(appId).arg(iconId != 0));
+        }
     }
     else
     {
@@ -236,6 +255,7 @@ void Widget::scanTray()
     QStringList tarys = output.split(";;HAKU_LINE;;", QString::SkipEmptyParts);
     foreach(QString tary, tarys)
     {
+        qDebug() << tary;
         QStringList strs;
         bool ok;
         if(tary.contains("微信") && tary.contains("WeChat.exe"))
@@ -256,7 +276,7 @@ void Widget::scanTray()
             mMSD[IdCloudHub].hWnd = QString("0x%1").arg(strs.at(0)).toUInt(&ok, 16);
             logit(tr("已获取到 <%1> 句柄[0x%2]").arg(tr("云之家"), QString::number(mMSD[IdCloudHub].hWnd, 16)));
         }
-        else if(tary.contains("钉钉") && tary.contains("DingTalk.exe"))
+        else if(/*tary.contains("钉钉") && */tary.contains("DingTalk.exe"))   //钉钉消息闪动时，没有"钉钉"文本
         {
             strs = tary.split(";;HAKU_ITEM;;");
             mMSD[IdDingTalk].hWnd = QString("0x%1").arg(strs.at(0)).toUInt(&ok, 16);

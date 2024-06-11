@@ -26,7 +26,8 @@ struct ModifySocketData
 {
     QString     appName;
     QDateTime   lastModifyTime {QDateTime::currentDateTime()};
-    ulong       lastIconId {0};
+    ulong       lastIconId {ULONG_MAX};
+    bool        lastHasIcon {false};    //上次闪动是否有图标，这个只有QQ用到，因为QQ没有图标时IconId依然不为0，所以只能模拟闪动。微信、云之家、钉钉可以判断IconId为0时为没有图标
     quint64     hWnd {0x0};             //句柄
     int         modifyCount {0};
 };
@@ -41,6 +42,9 @@ public:
 
 private:
     Ui::Widget *ui;
+
+private slots:
+    void on_pushButton_ClearLog_clicked();              //清理日志
 
 private slots:
     void slotNewConnection();       //新的连接

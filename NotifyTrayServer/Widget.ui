@@ -17,6 +17,40 @@
    <item>
     <widget class="QTextBrowser" name="textBrowser"/>
    </item>
+   <item>
+    <layout class="QHBoxLayout" name="hLayout_Func">
+     <item>
+      <spacer name="hSpacer_Func">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_ClearLog">
+       <property name="text">
+        <string>清理日志</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkBox_Log">
+       <property name="text">
+        <string>日志</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
  <resources/>
