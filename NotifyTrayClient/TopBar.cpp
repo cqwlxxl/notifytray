@@ -51,8 +51,6 @@ void TopBar::Bye()
 ///同步icon
 void TopBar::SyncIcon(int appId, bool hasMsg, bool hasIcon)
 {
-    Q_UNUSED(hasMsg)
-
     switch(appId)
     {
     case IdWeChat:

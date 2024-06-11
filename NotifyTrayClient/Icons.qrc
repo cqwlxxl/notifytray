@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Res/icon/WeChat_24x.png</file>
+        <file>Res/icon/NoIcon_24x.png</file>
+        <file>Res/icon/CloudHub_24x.png</file>
+        <file>Res/icon/DingTalk_24x.png</file>
+        <file>Res/icon/QQ_24x.png</file>
+        <file>Res/icon/Asuna_256x.png</file>
+    </qresource>
+</RCC>

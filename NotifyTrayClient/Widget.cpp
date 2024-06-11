@@ -177,6 +177,21 @@ void Widget::haku()
     ui->label_IconCloudHub->setPixmap(QPixmap("src/icon/CloudHub_24x.png"));
     ui->label_IconDingTalk->setScaledContents(true);
     ui->label_IconDingTalk->setPixmap(QPixmap("src/icon/DingTalk_24x.png"));
+
+    haku_tray();
+}
+
+///初始化托盘
+void Widget::haku_tray()
+{
+    mTray[IdWeChat] = new QSystemTrayIcon(this);
+    mTray[IdQQ] = new QSystemTrayIcon(this);
+    mTray[IdCloudHub] = new QSystemTrayIcon(this);
+    mTray[IdDingTalk] = new QSystemTrayIcon(this);
+    mTray[IdWeChat]->setIcon(QIcon(QPixmap("src/icon/WeChat_24x.png")));
+    mTray[IdQQ]->setIcon(QIcon(QPixmap("src/icon/QQ_24x.png")));
+    mTray[IdCloudHub]->setIcon(QIcon(QPixmap("src/icon/CloudHub_24x.png")));
+    mTray[IdDingTalk]->setIcon(QIcon(QPixmap("src/icon/DingTalk_24x.png")));
 }
 
 ///打印log
@@ -198,45 +213,57 @@ void Widget::syncIcon(int appId, bool hasMsg, bool hasIcon)
         if(hasIcon)
         {
             ui->label_IconWeChat->setPixmap(QPixmap("src/icon/WeChat_24x.png"));
+            mTray[IdWeChat]->setIcon(QIcon(QPixmap(":/Res/icon/WeChat_24x.png")));
         }
         else
         {
             ui->label_IconWeChat->clear();
+            mTray[IdWeChat]->setIcon(QIcon(QPixmap(":/Res/icon/NoIcon_24x.png")));
         }
         ui->label_IconWeChat->setVisible(hasMsg);
+        mTray[IdWeChat]->setVisible(hasMsg);
         break;
     case IdQQ:
         if(hasIcon)
         {
             ui->label_IconQQ->setPixmap(QPixmap("src/icon/QQ_24x.png"));
+            mTray[IdQQ]->setIcon(QIcon(QPixmap(":/Res/icon/QQ_24x.png")));
         }
         else
         {
             ui->label_IconQQ->clear();
+            mTray[IdQQ]->setIcon(QIcon(QPixmap(":/Res/icon/NoIcon_24x.png")));
         }
         ui->label_IconQQ->setVisible(hasMsg);
+        mTray[IdQQ]->setVisible(hasMsg);
         break;
     case IdCloudHub:
         if(hasIcon)
         {
             ui->label_IconCloudHub->setPixmap(QPixmap("src/icon/CloudHub_24x.png"));
+            mTray[IdCloudHub]->setIcon(QIcon(QPixmap(":/Res/icon/CloudHub_24x.png")));
         }
         else
         {
             ui->label_IconCloudHub->clear();
+            mTray[IdCloudHub]->setIcon(QIcon(QPixmap(":/Res/icon/NoIcon_24x.png")));
         }
         ui->label_IconCloudHub->setVisible(hasMsg);
+        mTray[IdCloudHub]->setVisible(hasMsg);
         break;
     case IdDingTalk:
         if(hasIcon)
         {
             ui->label_IconDingTalk->setPixmap(QPixmap("src/icon/DingTalk_24x.png"));
+            mTray[IdDingTalk]->setIcon(QIcon(QPixmap(":/Res/icon/DingTalk_24x.png")));
         }
         else
         {
             ui->label_IconDingTalk->clear();
+            mTray[IdDingTalk]->setIcon(QIcon(QPixmap(":/Res/icon/NoIcon_24x.png")));
         }
         ui->label_IconDingTalk->setVisible(hasMsg);
+        mTray[IdDingTalk]->setVisible(hasMsg);
         break;
     default:
         break;
@@ -258,5 +285,9 @@ void Widget::setLinked(bool link)
         ui->label_IconQQ->setVisible(false);
         ui->label_IconCloudHub->setVisible(false);
         ui->label_IconDingTalk->setVisible(false);
+        mTray[IdWeChat]->setVisible(false);
+        mTray[IdQQ]->setVisible(false);
+        mTray[IdCloudHub]->setVisible(false);
+        mTray[IdDingTalk]->setVisible(false);
     }
 }

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QTcpSocket>
+#include <QSystemTrayIcon>
 
 #include "TopBar.h"
 
@@ -31,6 +32,7 @@ private slots:
 
 private:
     void haku();                //初始化
+    void haku_tray();           //初始化托盘
     void logit(QString str);    //打印log
     void syncIcon(int appId, bool hasMsg, bool hasIcon);    //同步icon
     void setLinked(bool link);  //设置是否连上服务器
@@ -40,5 +42,7 @@ private:
     TopBar      *mTopBar {new TopBar(nullptr)};     //桌面置顶条
     bool        mLinked {false};                    //是否连接上服务器
     QString     mIps[3];                            //历史IP
+
+    QSystemTrayIcon     *mTray[4];                  //托盘图标
 };
 #endif // WIDGET_H
