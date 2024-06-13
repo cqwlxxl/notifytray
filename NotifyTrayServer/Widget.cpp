@@ -47,8 +47,36 @@ void Widget::slotNewConnection()
         QTcpSocket *socket = mServer->nextPendingConnection();
 //        socket->setProxy(QNetworkProxy::NoProxy);
         mConnectionSet.insert(socket);
+        connect(socket, &QTcpSocket::readyRead, this, &Widget::slotReadyReadSocket, Qt::UniqueConnection);
         connect(socket, &QTcpSocket::disconnected, this, &Widget::slotDiscardSocket, Qt::UniqueConnection);
-        logit(QString(tr("客户端[ip:%1]已连接")).arg(socket->peerAddress().toString()));
+        logit(QString(tr("客户端[%1]已连接")).arg(socket->peerAddress().toString()));
+    }
+}
+
+///读取socket
+void Widget::slotReadyReadSocket()
+{
+    QTcpSocket *socket = reinterpret_cast<QTcpSocket*>(sender());
+    QByteArray buffer;
+    QDataStream socketStream(socket);
+    socketStream.setVersion(QDataStream::Qt_5_12);
+    socketStream.startTransaction();
+    socketStream >> buffer;
+
+    if(!socketStream.commitTransaction())
+    {
+        logit(QString(tr("等待客户端[%1]更多数据到达")).arg(socket->peerAddress().toString()));
+        return;
+    }
+
+    QString header = buffer.mid(0, 128);
+    QString fileType = header.split(",")[0].split(":")[1];
+    buffer = buffer.mid(128);
+    if(fileType == "message")
+    {
+        int appId = QString::fromStdString(buffer.toStdString()).toInt();
+        openApp(appId);
+        logit(QString(tr("打开程序 <%1>")).arg(mMSD[appId].appName));
     }
 }
 
@@ -272,6 +300,7 @@ void Widget::scanTray()
             strs = tary.split(";;HAKU_ITEM;;");
             mMSD[IdWeChat].run = true;
             mMSD[IdWeChat].hWnd = QString("0x%1").arg(strs.at(0)).toUInt(&ok, 16);
+            mMSD[IdWeChat].appPath = strs.at(1);
             logit(tr("已获取到 <%1> 句柄[0x%2]").arg(tr("微信"), QString::number(mMSD[IdWeChat].hWnd, 16)));
         }
         else if(tary.contains("QQ.exe"))
@@ -279,6 +308,7 @@ void Widget::scanTray()
             strs = tary.split(";;HAKU_ITEM;;");
             mMSD[IdQQ].run = true;
             mMSD[IdQQ].hWnd = QString("0x%1").arg(strs.at(0)).toUInt(&ok, 16);
+            mMSD[IdQQ].appPath = strs.at(1);
             logit(tr("已获取到 <%1> 句柄[0x%2]").arg(tr("QQ"), QString::number(mMSD[IdQQ].hWnd, 16)));
         }
         else if(tary.contains("云之家") && tary.contains("CloudHub.exe"))
@@ -286,6 +316,7 @@ void Widget::scanTray()
             strs = tary.split(";;HAKU_ITEM;;");
             mMSD[IdCloudHub].run = true;
             mMSD[IdCloudHub].hWnd = QString("0x%1").arg(strs.at(0)).toUInt(&ok, 16);
+            mMSD[IdCloudHub].appPath = strs.at(1);
             logit(tr("已获取到 <%1> 句柄[0x%2]").arg(tr("云之家"), QString::number(mMSD[IdCloudHub].hWnd, 16)));
         }
         else if(tary.contains("DingTalk.exe"))   //钉钉消息闪动时，没有"钉钉"文本
@@ -293,6 +324,7 @@ void Widget::scanTray()
             strs = tary.split(";;HAKU_ITEM;;");
             mMSD[IdDingTalk].run = true;
             mMSD[IdDingTalk].hWnd = QString("0x%1").arg(strs.at(0)).toUInt(&ok, 16);
+            mMSD[IdDingTalk].appPath = strs.at(1);
             logit(tr("已获取到 <%1> 句柄[0x%2]").arg(tr("钉钉"), QString::number(mMSD[IdDingTalk].hWnd, 16)));
         }
     }
@@ -303,6 +335,34 @@ void Widget::scanTray()
             mMSD[i].hWnd = 0x0;
         }
     }
+}
+
+///显示窗口并置顶
+void Widget::openApp(int appId)
+{
+    if(appId == IdQQ)
+    {   //由于QQ可打开多例，故暂未实现
+        return;
+    }
+
+    HWND hWnd = ::FindWindowA(nullptr, mMSD[appId].appName.toLocal8Bit());
+
+    QProcess progress;
+    progress.start(mMSD[appId].appPath);
+    if(!progress.waitForFinished())
+    {
+        logit(QString("打开 <%1> 超时").arg(mMSD[appId].appName));
+        return;
+    }
+
+    if(!hWnd || !::IsWindow(hWnd))
+    {
+        logit(QString("无法找到 <%1> 的窗口").arg(mMSD[appId].appName));
+        return;
+    }
+    //钉钉在虚拟机全屏后，无法置顶窗口，只有托盘弹出的窗口可置顶
+    ::ShowWindow(hWnd, SW_SHOWNORMAL);
+    ::SetForegroundWindow(hWnd);
 }
 
 bool Widget::nativeEvent(const QByteArray &eventType, void *message, long *result)

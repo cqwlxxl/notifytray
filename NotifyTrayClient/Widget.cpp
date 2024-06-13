@@ -3,6 +3,7 @@
 
 #include <QDateTime>
 #include <QHostAddress>
+#include <QMenu>
 #include <QMessageBox>
 #include <QNetworkProxy>
 #include <QRegExp>
@@ -153,6 +154,68 @@ void Widget::slotDiscardSocket()
     logit("已断开服务器");
 }
 
+#ifdef Q_OS_WIN
+///打开微信
+void Widget::slotTrayActive_WeChat(QSystemTrayIcon::ActivationReason reason)
+{
+    if(reason == QSystemTrayIcon::Trigger)
+    {   //单击图标
+        sendMessage(QString::number(IdWeChat));
+    }
+}
+
+///打开QQ
+void Widget::slotTrayActive_QQ(QSystemTrayIcon::ActivationReason reason)
+{
+    if(reason == QSystemTrayIcon::Trigger)
+    {   //单击图标
+        sendMessage(QString::number(IdQQ));
+    }
+}
+
+///打开云之家
+void Widget::slotTrayActive_CloudHub(QSystemTrayIcon::ActivationReason reason)
+{
+    if(reason == QSystemTrayIcon::Trigger)
+    {   //单击图标
+        sendMessage(QString::number(IdCloudHub));
+    }
+}
+
+///打开钉钉
+void Widget::slotTrayActive_DingTalk(QSystemTrayIcon::ActivationReason reason)
+{
+    if(reason == QSystemTrayIcon::Trigger)
+    {   //单击图标
+        sendMessage(QString::number(IdDingTalk));
+    }
+}
+#endif
+
+///打开微信
+void Widget::slotTrayMenuAction_WeChat()
+{
+    sendMessage(QString::number(IdWeChat));
+}
+
+///打开QQ
+void Widget::slotTrayMenuAction_QQ()
+{
+    sendMessage(QString::number(IdQQ));
+}
+
+///打开云之家
+void Widget::slotTrayMenuAction_CloudHub()
+{
+    sendMessage(QString::number(IdCloudHub));
+}
+
+///打开钉钉
+void Widget::slotTrayMenuAction_DingTalk()
+{
+    sendMessage(QString::number(IdDingTalk));
+}
+
 ///初始化
 void Widget::haku()
 {
@@ -192,6 +255,41 @@ void Widget::haku_tray()
     mTray[IdQQ]->setIcon(QIcon(QPixmap("src/icon/QQ_24x.png")));
     mTray[IdCloudHub]->setIcon(QIcon(QPixmap("src/icon/CloudHub_24x.png")));
     mTray[IdDingTalk]->setIcon(QIcon(QPixmap("src/icon/DingTalk_24x.png")));
+#ifdef Q_OS_WIN
+    connect(mTray[IdWeChat], &QSystemTrayIcon::activated, this, &Widget::slotTrayActive_WeChat, Qt::UniqueConnection);
+    connect(mTray[IdQQ], &QSystemTrayIcon::activated, this, &Widget::slotTrayActive_QQ, Qt::UniqueConnection);
+    connect(mTray[IdCloudHub], &QSystemTrayIcon::activated, this, &Widget::slotTrayActive_CloudHub, Qt::UniqueConnection);
+    connect(mTray[IdDingTalk], &QSystemTrayIcon::activated, this, &Widget::slotTrayActive_DingTalk, Qt::UniqueConnection);
+#endif
+
+    mMenu[IdWeChat] = new QMenu(this);
+    mAction[IdWeChat] = new QAction(this);
+    mAction[IdWeChat]->setText(tr("打开微信"));
+    connect(mAction[IdWeChat], &QAction::triggered, this, &Widget::slotTrayMenuAction_WeChat, Qt::UniqueConnection);
+    mTray[IdWeChat]->setContextMenu(mMenu[IdWeChat]);
+    mMenu[IdWeChat]->addAction(mAction[IdWeChat]);
+
+    mMenu[IdQQ] = new QMenu(this);
+    mAction[IdQQ] = new QAction(this);
+    mAction[IdQQ]->setText(tr("打开QQ"));
+    connect(mAction[IdQQ], &QAction::triggered, this, &Widget::slotTrayMenuAction_QQ, Qt::UniqueConnection);
+    mTray[IdQQ]->setContextMenu(mMenu[IdQQ]);
+    mMenu[IdQQ]->addAction(mAction[IdQQ]);
+
+    mMenu[IdCloudHub] = new QMenu(this);
+    mAction[IdCloudHub] = new QAction(this);
+    mAction[IdCloudHub]->setText(tr("打开云之家"));
+    connect(mAction[IdCloudHub], &QAction::triggered, this, &Widget::slotTrayMenuAction_CloudHub, Qt::UniqueConnection);
+    mTray[IdCloudHub]->setContextMenu(mMenu[IdCloudHub]);
+    mMenu[IdCloudHub]->addAction(mAction[IdCloudHub]);
+
+    mMenu[IdDingTalk] = new QMenu(this);
+    mAction[IdDingTalk] = new QAction(this);
+    mAction[IdDingTalk]->setText(tr("打开钉钉"));
+    connect(mAction[IdDingTalk], &QAction::triggered, this, &Widget::slotTrayMenuAction_DingTalk, Qt::UniqueConnection);
+    mTray[IdDingTalk]->setContextMenu(mMenu[IdDingTalk]);
+    mMenu[IdDingTalk]->addAction(mAction[IdDingTalk]);
+
 }
 
 ///打印log
@@ -289,5 +387,35 @@ void Widget::setLinked(bool link)
         mTray[IdQQ]->setVisible(false);
         mTray[IdCloudHub]->setVisible(false);
         mTray[IdDingTalk]->setVisible(false);
+    }
+}
+
+///发送socket
+void Widget::sendMessage(QString msg)
+{
+    if(mSocket)
+    {
+        if(mSocket->isOpen())
+        {
+            QDataStream socketStream(mSocket);
+            socketStream.setVersion(QDataStream::Qt_5_12);
+
+            QByteArray header;
+            header.prepend(QString("fileType:message,fileSize:%1;").arg(msg.size()).toUtf8());
+            header.resize(128);
+
+            QByteArray byteArray = msg.toUtf8();
+            byteArray.prepend(header);
+
+            socketStream << byteArray;
+        }
+        else
+        {
+            QMessageBox::critical(this, "错误", "Socket未打开");
+        }
+    }
+    else
+    {
+        QMessageBox::critical(this, "错误", "Socket未连接");
     }
 }

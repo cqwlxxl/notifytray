@@ -24,13 +24,14 @@ enum AppId
 
 struct ModifySocketData
 {
-    QString     appName;
+    QString     appName;                //程序名称
+    QString     appPath;                //程序完整路径
     QDateTime   lastModifyTime {QDateTime::currentDateTime()};
-    ulong       lastIconId {ULONG_MAX};
+    ulong       lastIconId {ULONG_MAX}; //上次托盘图标ID
     bool        lastHasIcon {false};    //上次闪动是否有图标，这个只有QQ用到，因为QQ没有图标时IconId依然不为0，所以只能模拟闪动。微信、云之家、钉钉可以判断IconId为0时为没有图标
     bool        run {false};            //是否运行，仅用于托盘图标扫描用
     quint64     hWnd {0x0};             //句柄
-    int         modifyCount {0};
+    int         modifyCount {0};        //有效闪动次数
 };
 
 class Widget : public QWidget
@@ -49,6 +50,7 @@ private slots:
 
 private slots:
     void slotNewConnection();       //新的连接
+    void slotReadyReadSocket();     //读取socket
     void slotDiscardSocket();       //断开socket
 
 private:
@@ -61,6 +63,7 @@ private:
     void taryInfo(QString type, ulong iconId, QString title, quint64 hWnd);         //处理图标信息
     void checkFlash(int appId, ulong iconId);                       //检查是否闪动
     void scanTray();                                    //扫描图标句柄
+    void openApp(int appId);                            //显示窗口并置顶
 
 protected:
     bool nativeEvent(const QByteArray &eventType, void *message, long *result);
